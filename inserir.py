@@ -1,36 +1,99 @@
-import mysql.connector
+from conexao import conectar
 
-config = {
-  'user': 'admin',
-  'password': 'Senai123',
-  'host': 'bdfilial.c5y9ymufqwie.us-east-1.rds.amazonaws.com',
-  'database': 'tribos'
-}
-'''
-try:
-    conn = mysql.connector.connect(**config)
-    print("Conexão executada com sucesso.")
-except mysql.connector.Error as err:
-    print(f"Conexão falhou: {err}")
+def listar(conn, cursor):
+    
+    conn = conectar()
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM tribo")
+    resultados = cursor.fetchall()
+   
+    for resultado in resultados:
+        print(resultado)
+   
+    cursor.close()
+    conn.close()
+    
+def inserir(nome_tribo, num_hab, renda_mensal, escolaridade, trab_salar):
+    
+    conn = conectar()
+    cursor = conn.cursor()
+    
+    sql = 'INSERT INTO tribo (nome_tribo, num_hab, renda_mensal, escolaridade, trab_salar) VALUES (%s, %s, %s, %s, %s)'
+    val = (nome_tribo, num_hab, renda_mensal, escolaridade, trab_salar)
+    cursor.execute(sql, val)
+    
+    conn.commit()
+    
+    print('Registro inserido com sucesso.')
+    
+    cursor.close()
+    conn.close()
+
+def deletar(codigo):
+    
+    conn = conectar()
+    cursor = conn.cursor()
+   
+    sql = 'DELETE FROM tribo WHERE codigo = %s'
+    val = (codigo,)
+    cursor.execute(sql, val)
+    
+    conn.commit()
+    
+    if cursor.rowcount == 0:
+        print('Nenhum registro deletado.')
+    else:
+        print('Registro deletado com sucessor')
+    
+    cursor.close()
+    conn.close()
+
+conn = conectar()
 
 cursor = conn.cursor()
 
-nome_tribo = input("Digite o nome da tribo: ")
-num_hab = int(input("Digite o numero de habitantes: "))
-renda_mensal = int(input("Digite a renda mensal: "))
-escolaridade = input("Digite o nivel de escolaridade: ")
-trab_salar = input("Responda se possui trabalho assalariado (s/n): ")
+while True:
+  
+  print("O que você deseja fazer?")
+  print("1 - Listar tribos")
+  print("2 - Inserir nova tribo")
+  print("3 - Deletar uma tribo")
+  print("0 - Sair")
+  
+  opcao = int(input("Digite o número da opção desejada: "))
 
+  if opcao == 1:
+    
+    listar(conn, cursor)
+  
+  elif opcao == 2:
+    
+    nome_tribo = input("Digite nome da nova tribo: ")
+    num_hab = int(input("Digite o num de habitantes da nova tribo: "))
+    renda_mensal = input("Digite a renda mensal: ")
+    escolaridade = input("Digite a escolaridade da nova tribo: ")
+    trab_salar = input("Digite se possuem trabalho assalariado: ")
+    
+    inserir(nome_tribo, num_hab, renda_mensal, escolaridade, trab_salar)
 
-sql = "INSERT INTO tribo (nome_tribo, num_hab, renda_mensal, escolaridade, trab_salar) VALUES (%s, %s)"
-val = (nome_tribo, num_hab, renda_mensal, escolaridade, trab_salar)
-cursor.execute(sql, val)
+  elif opcao == 3:
+    
+    codigo = int(input("Digite o código da tribo que deseja deletar: "))
+    deletar(codigo)
 
-# Efetuando as mudanças no banco de dados
-conn.commit()
+  elif opcao == 0:
+    
+    break
 
-print(cursor.rowcount, "registro(s) inserido(s) com sucesso.")
-
-# Fechar a conexão e o cursor
+  else:
+    print("Opção inválida. Digite novamente.")
+    
+    
+cursor.close()
 conn.close()
-'''
+
+
+
+
+
+
